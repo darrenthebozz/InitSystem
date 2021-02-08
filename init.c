@@ -35,7 +35,7 @@ int main(void) {
 	int sig;
 	size_t i;
 	
-	if(getpid != 1) {
+	if(getpid() != 1) {
 		return 1;
 	}
 	
