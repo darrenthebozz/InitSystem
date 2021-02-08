@@ -23,10 +23,13 @@
 export PATH=/usr/sbin:/usr/bin
 export HOME=/root
 export NO_AT_BRIDGE=1
+#
 export _JAVA_OPTIONS='-Dsun.java2d.opengl=true'
 export HISTFILE=/dev/null
 export WINEDEBUG=-all
 export GST_VAAPI_ALL_DRIVERS=1
+
+#^ trying to get all the power!
 
 /bin/mount -o noatime,nobarrier,remount /     &
 /bin/mount -t devtmpfs -o noatime udev  /dev  &
