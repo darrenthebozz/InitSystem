@@ -81,6 +81,6 @@ static void cleanup(int cmd) {
 	sleep(3);
 	kill(-1, SIGKILL);
 	sync();
-	mount(NULL, "/", NULL, MS_REMOUNT | MS_RDONLY, (void*)NULL);
+	mount(NULL, "/", NULL, MS_REMOUNT | MS_RDONLY, (void*) NULL);
 	reboot(cmd);
 }
