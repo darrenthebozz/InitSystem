@@ -34,7 +34,11 @@ static sigset_t set;
 int main(void) {
 	int sig;
 	size_t i;
-
+	
+	if(getpid != 1) {
+		return 1;
+	}
+	
 	reboot(LINUX_REBOOT_CMD_CAD_OFF);
 	sigfillset(&set);
 	sigprocmask(SIG_BLOCK, &set, NULL);
