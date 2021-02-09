@@ -1,4 +1,3 @@
-#!/sbin/sh
 
 #	Copyright (c) 2021 Darren Wallcroft
 #	Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -20,16 +19,14 @@
 #	SOFTWARE.
 
 
+#!/sbin/sh
 export PATH=/usr/sbin:/usr/bin
 export HOME=/root
 export NO_AT_BRIDGE=1
-#
 export _JAVA_OPTIONS='-Dsun.java2d.opengl=true'
 export HISTFILE=/dev/null
 export WINEDEBUG=-all
 export GST_VAAPI_ALL_DRIVERS=1
-
-#^ trying to get all the power!
 
 /bin/mount -o noatime,nobarrier,remount /     &
 /bin/mount -t devtmpfs -o noatime udev  /dev  &
@@ -46,23 +43,23 @@ export $(cat /proc/cmdline)
 /bin/mount -t devpts    -o noatime devpts         /dev/pts       &
 /bin/mount -t hugetlbfs -o noatime hugetlbfs      /dev/hugepages &
 /bin/mount -t cgroup2   -o noatime cgroup2        /sys/fs/cgroup &
-/bin/chmod 777 /dev/shm /dev/pts /tmp /dev/hugepages             &
+/bin/chmod 777 /dev/shm /dev/pts /tmp /dev/hugepages
 
 /usr/sbin/udevd -d &
 dbus-daemon --system --nopidfile --nosyslog &
 /lib/elogind/elogind -D &
+/bin/ip link set lo up &
 wait
 
 /bin/sddm &
+/bin/echo "1" > /proc/sys/net/ipv4/icmp_echo_ignore_all &
+/bin/echo "1" > /proc/sys/net/ipv4/tcp_low_latency &
+/bin/echo "1" > /proc/sys/net/ipv4/ip_forward &
 /bin/udevadm trigger --attr-match=dev      --action=add &
 /bin/udevadm trigger --subsystem-match=net --action=add &
 /bin/udevadm trigger --type=subsystems     --action=add &
 /bin/udevadm trigger --type=devices        --action=add &
 /bin/udevadm settle  -t 120 &
-/bin/ip link set lo up &
-/bin/echo "1" > /proc/sys/net/ipv4/icmp_echo_ignore_all &
-/bin/echo "1" > /proc/sys/net/ipv4/tcp_low_latency &
-/bin/echo "1" > /proc/sys/net/ipv4/ip_forward &
 /lib/iwd/iwd &
 /bin/ntpd -qg
 /bin/hwclock -w &
