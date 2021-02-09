@@ -34,7 +34,7 @@ export GST_VAAPI_ALL_DRIVERS=1
 /bin/mount -t ramfs    -o noatime ramfs /tmp  &
 /bin/mount -t ramfs    -o noatime ramfs /run  &
 wait
-export $(cat /proc/cmdline)
+export $(cat /proc/cmdline) # can't think of a better way, for now this is how we get root=
 /bin/fsck $root -y
 
 /bin/mkdir /dev/shm /dev/pts /dev/hugepages /run/dbus --mode 777
