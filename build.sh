@@ -1,2 +1,2 @@
 #!/sbin/sh
-gcc init.c -o build/bin/init -s -Os
+gcc init.c -o init -s -Os
