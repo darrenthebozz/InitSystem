@@ -37,12 +37,12 @@ wait
 export $(cat /proc/cmdline) # Can't think of a better way, for now this is how we get root device.
 /bin/fsck $root -y
 
-/bin/mkdir /dev/shm /dev/pts /dev/hugepages /run/dbus --mode 777
+/bin/mkdir /dev/shm /dev/pts /dev/hugepages /run/dbus
 /bin/mount -t tmpfs     -o noatime,size=50% tmpfs /dev/shm       &
 /bin/mount -t devpts    -o noatime devpts         /dev/pts       &
 /bin/mount -t hugetlbfs -o noatime hugetlbfs      /dev/hugepages &
 /bin/mount -t cgroup2   -o noatime cgroup2        /sys/fs/cgroup &
-/bin/chmod 777 /tmp &
+/bin/chmod 777 /tmp /dev/shm /dev/pts /dev/hugepages /run/dbus   &
 
 /usr/sbin/udevd -d &
 dbus-daemon --system --nopidfile --nosyslog &
