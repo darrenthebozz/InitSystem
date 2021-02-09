@@ -1,2 +1,2 @@
-#!/bin/sh
+#!/sbin/sh
 kill -s 10 1
