@@ -1,3 +1,4 @@
+#!/sbin/sh
 
 #	Copyright (c) 2021 Darren Wallcroft
 #	Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,8 +19,6 @@
 #	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #	SOFTWARE.
 
-
-#!/sbin/sh
 export PATH=/usr/sbin:/usr/bin
 export HOME=/root
 export NO_AT_BRIDGE=1
@@ -38,12 +37,12 @@ wait
 export $(cat /proc/cmdline)
 /bin/fsck $root -y
 
-/bin/mkdir /dev/shm /dev/pts /dev/hugepages /run/dbus
+/bin/mkdir /dev/shm /dev/pts /dev/hugepages /run/dbus --mode 777
 /bin/mount -t tmpfs     -o noatime,size=50% tmpfs /dev/shm       &
 /bin/mount -t devpts    -o noatime devpts         /dev/pts       &
 /bin/mount -t hugetlbfs -o noatime hugetlbfs      /dev/hugepages &
 /bin/mount -t cgroup2   -o noatime cgroup2        /sys/fs/cgroup &
-/bin/chmod 777 /dev/shm /dev/pts /tmp /dev/hugepages
+/bin/chmod 777 /tmp &
 
 /usr/sbin/udevd -d &
 dbus-daemon --system --nopidfile --nosyslog &
