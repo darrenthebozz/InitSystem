@@ -68,7 +68,7 @@ loop:
 			break;
 	}
 	goto loop;
-	/* not reachable */
+	//Not reachable.
 	return 0;
 }
 
