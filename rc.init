@@ -51,8 +51,6 @@ dbus-daemon --system --nopidfile --nosyslog &
 wait
 
 /bin/sddm &
-/bin/echo "1" > /proc/sys/net/ipv4/icmp_echo_ignore_all &
-/bin/echo "1" > /proc/sys/net/ipv4/tcp_low_latency &
 /bin/echo "1" > /proc/sys/net/ipv4/ip_forward &
 /bin/udevadm trigger --attr-match=dev      --action=add &
 /bin/udevadm trigger --subsystem-match=net --action=add &
