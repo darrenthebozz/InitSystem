@@ -5,7 +5,7 @@
 #include <sys/mount.h>
 #include <sys/reboot.h>
 #include <unistd.h>
-
+//Needs to be Thought out.
 /*Small project so these variables are allowed to hangout side of its area.*/
 #define SHUTDOWN_DELAY 3
 char *const rcinit[] = { "/etc/rc.init", NULL };
@@ -67,9 +67,9 @@ static void cleanup(int cmd) {
 	sigprocmask(SIG_UNBLOCK, &set, NULL);
 	execvp(rcshutdown[0], rcshutdown); //Executes shutdown script and waits for it to finish 'can cause hang'
 	umount2("/", 0);
-	kill(-1, SIGTERM); //Soft terminate
-	sleep(SHUTDOWN_DELAY); //We shouldn't shutdown immediately so that other apps have time to respond.
-	kill(-1, SIGKILL); //Hard terminate
+	kill(-1, SIGTERM); //Notify all executables to die
+	sleep(SHUTDOWN_DELAY);
+	kill(-1, SIGKILL); //Force kill all executables
 	sync(); //Dumps all writes onto disk.
 	mount(NULL, "/", NULL, MS_REMOUNT | MS_RDONLY, (void*) NULL); //Remounts root as RO
 	reboot(cmd);
