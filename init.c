@@ -5,11 +5,10 @@
 #include <sys/mount.h>
 #include <sys/reboot.h>
 #include <unistd.h>
-//Needs to be Thought out.
-/*Small project so these variables are allowed to hangout side of its area.*/
-#define SHUTDOWN_DELAY 3
-char *const rcinit[] = { "/etc/rc.init", NULL };
-char *const rcshutdown[] = { "/etc/rc.shutdown", NULL };
+
+unsigned int SHUTDOWN_DELAY 3
+char *const RC_INIT[] = { "/etc/rc.init", NULL };
+char *const RC_SHUTDOWN[] = { "/etc/rc.shutdown", NULL };
 
 static void cleanup(int cmd);
 
@@ -24,7 +23,7 @@ int main(void) {
 	if(getpid() != 1) {
 		if (fork() == 0) { //If it has a pid that isn't 1 then just execute the start up script.
 			sigprocmask(SIG_UNBLOCK, &set, NULL);
-			execvp(rcinit[0], rcinit);
+			execvp(RC_INIT[0], RC_INIT);
 			return 0;
 		}
 		return 0;
@@ -58,18 +57,17 @@ loop:
 			break;
 	}
 	goto loop;
-	//Not reachable.
 	return 0;
 }
 
 static void cleanup(int cmd) {
 	//setsid(); //Shouldn't be needed.
 	sigprocmask(SIG_UNBLOCK, &set, NULL);
-	execvp(rcshutdown[0], rcshutdown); //Executes shutdown script and waits for it to finish 'can cause hang'
+	execvp(rcshutdown[0], RC_SHUTDOWN); //Executes shutdown script and waits for it to finish 'can cause hang'
 	umount2("/", 0);
-	kill(-1, SIGTERM); //Notify all executables to die
+	kill(-1, SIGTERM);
 	sleep(SHUTDOWN_DELAY);
-	kill(-1, SIGKILL); //Force kill all executables
+	kill(-1, SIGKILL);
 	sync(); //Dumps all writes onto disk.
 	mount(NULL, "/", NULL, MS_REMOUNT | MS_RDONLY, (void*) NULL); //Remounts root as RO
 	reboot(cmd);
