@@ -37,7 +37,7 @@ int main(void) {
 	if (fork() == 0) {
 		sigprocmask(SIG_UNBLOCK, &set, NULL);
 		//setsid();
-		execvp(rcinit[0], rcinit);
+		execvp(RC_INIT[0], RC_INIT);
 		return 0;
 	}
 
