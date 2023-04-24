@@ -5,8 +5,9 @@
 #include <sys/mount.h>
 #include <sys/reboot.h>
 #include <unistd.h>
+#include <stdio.h>
 
-unsigned int SHUTDOWN_DELAY 3
+unsigned int SHUTDOWN_DELAY = 3;
 char *const RC_INIT[] = { "/etc/rc.init", NULL };
 char *const RC_SHUTDOWN[] = { "/etc/rc.shutdown", NULL };
 
@@ -63,7 +64,7 @@ loop:
 static void cleanup(int cmd) {
 	//setsid(); //Shouldn't be needed.
 	sigprocmask(SIG_UNBLOCK, &set, NULL);
-	execvp(rcshutdown[0], RC_SHUTDOWN); //Executes shutdown script and waits for it to finish 'can cause hang'
+	execvp(RC_SHUTDOWN[0], RC_SHUTDOWN); //Executes shutdown script and waits for it to finish 'can cause hang'
 	umount2("/", 0);
 	kill(-1, SIGTERM);
 	sleep(SHUTDOWN_DELAY);
