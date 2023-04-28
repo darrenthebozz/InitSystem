@@ -1,62 +1,38 @@
 #!/sbin/sh
 
-#	Copyright (c) 2021 darrenthebozz
-#	Permission is hereby granted, free of charge, to any person obtaining a copy
-#	of this software and associated documentation files (the "Software"), to deal
-#	in the Software without restriction, including without limitation the rights
-#	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-#	copies of the Software, and to permit persons to whom the Software is
-#	furnished to do so, subject to the following conditions:
-#	
-#	The above copyright notice and this permission notice shall be included in all
-#	copies or substantial portions of the Software.
-#	
-#	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-#	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-#	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-#	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-#	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-#	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-#	SOFTWARE.
-
 export PATH=/usr/sbin:/usr/bin
 export HOME=/root
-export NO_AT_BRIDGE=1
-export _JAVA_OPTIONS='-Dsun.java2d.opengl=true'
-export HISTFILE=/dev/null
-export WINEDEBUG=-all
-export GST_VAAPI_ALL_DRIVERS=1
 
-/bin/mount -o noatime,nobarrier,remount /     &
-/bin/mount -t devtmpfs -o noatime udev  /dev  &
-/bin/mount -t sysfs    -o noatime sysfs /sys  &
-/bin/mount -t proc     -o noatime proc  /proc &
-/bin/mount -t ramfs    -o noatime ramfs /tmp  &
-/bin/mount -t ramfs    -o noatime ramfs /run  &
-wait
-export $(cat /proc/cmdline) # Can't think of a better way, for now this is how we get root device.
-/bin/fsck $root -y
+/bin/mount -o ro,remount /
+/bin/mount -t devtmpfs -o noatime udev  /dev
+/bin/mount -t sysfs    -o noatime sysfs /sys
+/bin/mount -t proc     -o noatime proc  /proc
+/bin/mount -t tmpfs    -o noatime ramfs /tmp 
+/bin/mount -t tmpfs    -o noatime ramfs /run 
 
-/bin/mkdir /dev/shm /dev/pts /dev/hugepages /run/dbus
+fsck $(grep -oP --colour=never 'root=\K\S+' /proc/cmdline) -a -T > /dev/null 2>/dev/null
+
+mount -o rw,remount /
+
+/bin/mkdir /dev/shm /dev/pts /run/dbus
+
 /bin/mount -t tmpfs     -o noatime,size=50% tmpfs /dev/shm       &
 /bin/mount -t devpts    -o noatime devpts         /dev/pts       &
-/bin/mount -t hugetlbfs -o noatime hugetlbfs      /dev/hugepages &
-/bin/mount -t cgroup2   -o noatime cgroup2        /sys/fs/cgroup &
-/bin/chmod 777 /tmp /dev/shm /dev/pts /dev/hugepages /run/dbus   &
 
-/usr/sbin/udevd -d &
-dbus-daemon --system --nopidfile --nosyslog &
-/lib/elogind/elogind -D &
-/bin/ip link set lo up &
-wait
+/bin/chmod 777 /tmp /dev/shm /dev/pts /run/dbus   &
 
-/bin/sddm &
-/bin/echo "1" > /proc/sys/net/ipv4/ip_forward &
-/bin/udevadm trigger --attr-match=dev      --action=add &
-/bin/udevadm trigger --subsystem-match=net --action=add &
-/bin/udevadm trigger --type=subsystems     --action=add &
-/bin/udevadm trigger --type=devices        --action=add &
-/bin/udevadm settle  -t 120 &
-/lib/iwd/iwd &
+/usr/sbin/udevd -d
+dbus-daemon --system --nopidfile --nosyslog
+
+/bin/ip link set lo up
+
+/bin/udevadm trigger --attr-match=dev      --action=add
+/bin/udevadm trigger --subsystem-match=net --action=add
+/bin/udevadm trigger --type=subsystems     --action=add
+/bin/udevadm trigger --type=devices        --action=add
+/bin/udevadm settle  -t 120
+
+xinit /etc/X11/xinit/xinitrc -- /etc/X11/xinit/xserverrc
+
 /bin/ntpd -qg
 /bin/hwclock -w &
