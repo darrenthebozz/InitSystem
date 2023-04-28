@@ -10,16 +10,16 @@ export HOME=/root
 /bin/mount -t tmpfs    -o noatime ramfs /tmp 
 /bin/mount -t tmpfs    -o noatime ramfs /run 
 
-fsck $(grep -oP --colour=never 'root=\K\S+' /proc/cmdline) -a -T > /dev/null 2>/dev/null
+fsck $(grep -oP --colour=never 'root=\K\S+' /proc/cmdline) -p -T
 
 mount -o rw,remount /
 
 /bin/mkdir /dev/shm /dev/pts /run/dbus
 
-/bin/mount -t tmpfs     -o noatime,size=50% tmpfs /dev/shm       &
-/bin/mount -t devpts    -o noatime devpts         /dev/pts       &
+/bin/mount -t tmpfs     -o noatime,size=50% tmpfs /dev/shm
+/bin/mount -t devpts    -o noatime devpts         /dev/pts
 
-/bin/chmod 775 /tmp /dev/shm /dev/pts /run/dbus   &
+/bin/chmod 775 /tmp /dev/shm /dev/pts /run/dbus
 
 /usr/sbin/udevd -d
 dbus-daemon --system --nopidfile --nosyslog
@@ -36,3 +36,4 @@ xinit /etc/X11/xinit/xinitrc -- /etc/X11/xinit/xserverrc
 
 /bin/ntpd -qg
 /bin/hwclock -w &
+disown -a
