@@ -19,7 +19,7 @@ mount -o rw,remount /
 /bin/mount -t tmpfs     -o noatime,size=50% tmpfs /dev/shm       &
 /bin/mount -t devpts    -o noatime devpts         /dev/pts       &
 
-/bin/chmod 777 /tmp /dev/shm /dev/pts /run/dbus   &
+/bin/chmod 775 /tmp /dev/shm /dev/pts /run/dbus   &
 
 /usr/sbin/udevd -d
 dbus-daemon --system --nopidfile --nosyslog
