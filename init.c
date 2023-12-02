@@ -6,23 +6,44 @@
 #include <sys/reboot.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <syslog.h>
 
 unsigned int SHUTDOWN_DELAY = 3;
+
 char *const RC_INIT[] = { "/etc/rc.init", NULL };
 char *const RC_SHUTDOWN[] = { "/etc/rc.shutdown", NULL };
 
 static void cleanup(int cmd);
-
 static sigset_t set;
-
 int main(void) {
-	int sig;
-	size_t i;
+	if (getpid() != 1)
+		return 1;
+
+	mount(NULL, "/", NULL, MS_REMOUNT | MS_RDONLY, (void*) NULL); //Remounts root as RO
+
+	if (0 != mount("none", "/dev", "devtmpfs", 0, "")) {
+		openlog("Init", LOG_PID, LOG_USER);
+	    	syslog(LOG_EMERG, "Couldn't mount /dev!");
+    		closelog();
+		
+		return 1;
+	}
 	
-	setsid(); //Creates a new session and we are the leader?
+	if(stdout == NULL)
+		freopen("/dev/null", "w", stdout);
+	if(stderr == NULL)
+		freopen("/dev/null", "w", stderr);
+	if(stdin == NULL)
+		freopen("/dev/null", "r", stdin);
+
+	int sig;
+
+	size_t i;
+
+	setsid();
 	
 	if(getpid() != 1) {
-		if (fork() == 0) { //If it has a pid that isn't 1 then just execute the start up script.
+		if (fork() == 0) {
 			sigprocmask(SIG_UNBLOCK, &set, NULL);
 			execvp(RC_INIT[0], RC_INIT);
 			return 0;
@@ -36,11 +57,9 @@ int main(void) {
 
 	if (fork() == 0) {
 		sigprocmask(SIG_UNBLOCK, &set, NULL);
-		//setsid();
 		execvp(RC_INIT[0], RC_INIT);
 		return 0;
 	}
-
 loop:
 	alarm(30);
 	sigwait(&set, &sig);
@@ -58,11 +77,11 @@ loop:
 			break;
 	}
 	goto loop;
+
 	return 0;
 }
 
 static void cleanup(int cmd) {
-	//setsid(); //Shouldn't be needed.
 	sigprocmask(SIG_UNBLOCK, &set, NULL);
 	execvp(RC_SHUTDOWN[0], RC_SHUTDOWN); //Executes shutdown script and waits for it to finish 'can cause hang'
 	umount2("/", 0);
