@@ -3,7 +3,6 @@
 export PATH=/usr/sbin:/usr/bin
 export HOME=/root
 
-/bin/mount -o ro,remount /
 /bin/mount -t sysfs    -o noatime sysfs /sys
 /bin/mount -t proc     -o noatime proc  /proc
 /bin/mount -t tmpfs    -o noatime ramfs /tmp 
