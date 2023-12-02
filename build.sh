@@ -1,2 +1,2 @@
-#!/sbin/sh
-gcc init.c -o init -s -Os
+#!/bin/sh
+gcc init.c -o init -s -Os -static
