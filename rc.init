@@ -1,4 +1,4 @@
-#!/sbin/sh
+#!/bin/sh
 
 export PATH=/usr/sbin:/usr/bin
 export HOME=/root
@@ -8,32 +8,11 @@ export HOME=/root
 /bin/mount -t sysfs    -o noatime sysfs /sys
 /bin/mount -t proc     -o noatime proc  /proc
 /bin/mount -t tmpfs    -o noatime ramfs /tmp 
-/bin/mount -t tmpfs    -o noatime ramfs /run 
 
 fsck $(grep -oP --colour=never 'root=\K\S+' /proc/cmdline) -p -T
 
 mount -o rw,remount /
-
-/bin/mkdir /dev/shm /dev/pts /run/dbus
-
-/bin/mount -t tmpfs     -o noatime,size=50% tmpfs /dev/shm
-/bin/mount -t devpts    -o noatime devpts         /dev/pts
-
-/bin/chmod 775 /tmp /dev/shm /dev/pts /run/dbus
-
-/usr/sbin/udevd -d
-dbus-daemon --system --nopidfile --nosyslog
-
 /bin/ip link set lo up
 
-/bin/udevadm trigger --attr-match=dev      --action=add
-/bin/udevadm trigger --subsystem-match=net --action=add
-/bin/udevadm trigger --type=subsystems     --action=add
-/bin/udevadm trigger --type=devices        --action=add
-/bin/udevadm settle  -t 120
-
-xinit /etc/X11/xinit/xinitrc -- /etc/X11/xinit/xserverrc
-
-/bin/ntpd -qg
-/bin/hwclock -w &
-disown -a
+cd /
+bash
